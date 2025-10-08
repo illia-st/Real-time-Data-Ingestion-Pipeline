@@ -210,3 +210,6 @@ __marimo__/
 # Kafka
 kafka1/
 kafka2/
+
+# Datasets
+datasets/
