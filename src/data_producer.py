@@ -4,7 +4,7 @@
 import json
 from typing import Dict, Any
 from confluent_kafka import Producer
-from src.utils import logger
+from utils import logger
 
 class KafkaProducer:
     """ Kafka Producer class. """
@@ -21,13 +21,13 @@ class KafkaProducer:
         else:
             logger.info("Message delivered to %s [%s]", msg.topic(), msg.partition())
 
-    def send_message(self, key, value):
+    def send_message(self, key: str, value: str):
         """ Produces a single message to the Kafka topic. """
 
         self.producer.produce(
             self.topic,
-            key=str(key).encode('utf-8'),
-            value=json.dumps(value).encode('utf-8'),
+            key=key.encode('utf-8'),
+            value=value.encode('utf-8'),
             callback=self._delivery_report
         )
         # Poll to trigger the delivery report callback

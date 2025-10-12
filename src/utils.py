@@ -4,7 +4,6 @@
 import logging
 import os
 from dotenv import load_dotenv
-import pandas as pd
 import polars as pl
 
 load_dotenv('config/.env')

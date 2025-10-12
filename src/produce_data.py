@@ -2,9 +2,10 @@
     Execution script for producer
 """
 import time
+import json
 from typing import Dict
-from src.data_producer import KafkaProducer
-from src.utils import load_test_data, load_config, logger
+from data_producer import KafkaProducer
+from utils import load_test_data, load_config
 
 # --- Main execution block ---
 if __name__ == '__main__':
@@ -24,10 +25,9 @@ if __name__ == '__main__':
                     offset=i * test_data_chunk_size,
                     read_items_amount=test_data_chunk_size,
                 )
-                for index, row in events.iter_rows():
-                    logger.debug("Debuging")
-                    event_data = row.to_json()
-                    producer.send_message(key=event_data['user'], value=event_data)
+                for index, row in enumerate(events.rows(named=True)):
+                    event_data = json.dumps(row)
+                    producer.send_message(key=str(row['user']), value=event_data)
                 time.sleep(test_data_sleep_interval)
         finally:
             producer.close()
