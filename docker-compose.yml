@@ -5,17 +5,19 @@ services:
     container_name: kafka1
     ports:
       - "9092:9092"
+      - "19092:19092"  # Internal port
       - "9093:9093"
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_BROKER_ID: 1
       KAFKA_PROCESS_ROLES: 'broker,controller'
       KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:9093,2@kafka2:9093'
-      KAFKA_LISTENERS: 'PLAINTEXT://kafka1:9092,CONTROLLER://kafka1:9093'
-      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka1:9092'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT'
+      # Two listeners: PLAINTEXT for external, PLAINTEXT_INTERNAL for Docker
+      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:9092,PLAINTEXT_INTERNAL://kafka1:19092,CONTROLLER://kafka1:9093'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka1:19092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT'
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
-      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT_INTERNAL'
       CLUSTER_ID: 'EmptNWtoR4GGWx-BH6nGLW'
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
@@ -25,6 +27,11 @@ services:
       - ./kafka1/data:/var/lib/kafka/data
     networks:
       - kafka-net
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   kafka2:
     image: confluentinc/cp-kafka:7.8.0
@@ -32,17 +39,19 @@ services:
     container_name: kafka2
     ports:
       - "9094:9092"
+      - "19094:19092"  # Internal port
       - "9095:9093"
     environment:
       KAFKA_NODE_ID: 2
       KAFKA_BROKER_ID: 2
       KAFKA_PROCESS_ROLES: 'broker,controller'
       KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:9093,2@kafka2:9093'
-      KAFKA_LISTENERS: 'PLAINTEXT://kafka2:9092,CONTROLLER://kafka2:9093'
-      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka2:9092'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT'
+      # Two listeners: PLAINTEXT for external, PLAINTEXT_INTERNAL for Docker
+      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:9092,PLAINTEXT_INTERNAL://kafka2:19092,CONTROLLER://kafka2:9093'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://localhost:9094,PLAINTEXT_INTERNAL://kafka2:19092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT'
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
-      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT_INTERNAL'
       CLUSTER_ID: 'EmptNWtoR4GGWx-BH6nGLW'
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
@@ -52,6 +61,11 @@ services:
       - ./kafka2/data:/var/lib/kafka/data
     networks:
       - kafka-net
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
@@ -60,10 +74,12 @@ services:
       - "8080:8080"
     environment:
       KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka1:9092,kafka2:9092
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka1:19092,kafka2:19092  # Use internal listener
     depends_on:
-      - kafka1
-      - kafka2
+      kafka1:
+        condition: service_healthy
+      kafka2:
+        condition: service_healthy
     networks:
       - kafka-net
 
