@@ -1,7 +1,6 @@
 """
     Kafka Producer class.
 """
-import json
 from typing import Dict, Any
 from confluent_kafka import Producer
 from utils import logger

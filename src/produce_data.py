@@ -5,7 +5,7 @@ import time
 import json
 from typing import Dict
 from data_producer import KafkaProducer
-from utils import load_test_data, load_config
+from utils import load_test_data, load_config, logger
 
 # --- Main execution block ---
 if __name__ == '__main__':
@@ -29,5 +29,7 @@ if __name__ == '__main__':
                     event_data = json.dumps(row)
                     producer.send_message(key=str(row['user']), value=event_data)
                 time.sleep(test_data_sleep_interval)
+        except KeyboardInterrupt:
+            logger.info('User interrupted the process.')
         finally:
             producer.close()
