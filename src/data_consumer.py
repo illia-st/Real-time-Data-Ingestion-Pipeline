@@ -4,7 +4,7 @@
 import json
 from typing import Any, Dict
 from confluent_kafka import Consumer, KafkaException
-from src.utils import logger
+from utils import logger
 
 class KafkaConsumer:
     """ Kafka Consumer class. """
