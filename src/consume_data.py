@@ -1,8 +1,8 @@
 """
     Execution script for consumer
 """
-from data_consumer import KafkaConsumer
-from utils import load_config, logger
+from src.data_consumer import KafkaConsumer
+from src.utils import load_config, logger
 
 # --- Main execution block ---
 if __name__ == '__main__':

@@ -30,7 +30,12 @@ def load_config(config_path='config/.env'):
                 'events_to_produce_amount': os.getenv('TEST_DATA_EVENTS_TO_PRODUCE_AMOUNT'),
                 'chunk_size': os.getenv('TEST_DATA_CHUNK_SIZE'),
                 'sleep_interval': os.getenv('TEST_DATA_SLEEP_INTERVAL'),
-            }
+            },
+            's3_config': {
+                's3_bucket_name': os.getenv('S3_BUCKET_NAME'),
+                'batch_size': os.getenv('S3_BATCH_SIZE'),
+                'batch_interval_time_secs': os.getenv('S3_BATCH_INTERVAL_TIME_SECS'),
+            },
         }
         logger.info(str(env_config))
         return env_config

@@ -8,7 +8,7 @@ from typing import Any, Dict
 import time
 import boto3
 from confluent_kafka import Consumer, KafkaException
-from utils import logger
+from src.utils import logger
 
 class KafkaConsumer:
     """ Kafka Consumer class. """
@@ -23,7 +23,7 @@ class KafkaConsumer:
         self.__consumer = Consumer(**consumer_conf)
         self.__topic = consumer_config['kafka']['topic_name']
 
-        s3_config = consumer_config['s3']
+        s3_config = consumer_config['s3_config']
         self.__s3_client = boto3.client('s3')
         self.__s3_bucket_name = s3_config['s3_bucket_name']
         self.__batch_size = int(s3_config['batch_size'])

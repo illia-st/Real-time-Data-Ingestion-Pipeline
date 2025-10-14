@@ -3,7 +3,7 @@
 """
 from typing import Dict, Any
 from confluent_kafka import Producer
-from utils import logger
+from src.utils import logger
 
 class KafkaProducer:
     """ Kafka Producer class. """
