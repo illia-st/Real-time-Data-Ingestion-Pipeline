@@ -4,8 +4,8 @@
 import time
 import json
 from typing import Dict
-from data_producer import KafkaProducer
-from utils import load_test_data, load_config, logger
+from src.data_producer import KafkaProducer
+from src.utils import load_test_data, load_config, logger
 
 # --- Main execution block ---
 if __name__ == '__main__':

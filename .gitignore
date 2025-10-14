@@ -213,3 +213,5 @@ kafka2/
 
 # Datasets
 datasets/
+
+src/test.*
